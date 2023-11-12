@@ -1,13 +1,13 @@
-package org.example;
+package org.ht;
 
-import org.example.ht.HTBench;
-import org.example.ht.HTMap;
+import org.ht.hashtable.HashtableBenchmark;
+import org.ht.hashtable.HashtableMap;
 
-public class Main {
+public class MainBenchmark {
 
     public static void main(String[] args) {
-        HTMap<String, Integer> simpleKV = new HTMap<>();
-        HTBench simpleKVBenc = new HTBench(simpleKV);
+        HashtableMap<String, Integer> simpleKV = new HashtableMap<>();
+        HashtableBenchmark simpleKVBenc = new HashtableBenchmark(simpleKV);
 
         int nSamples = 10000000;
         long putParallelTimeMilliseconds = simpleKVBenc.populateRandomlyParallel(

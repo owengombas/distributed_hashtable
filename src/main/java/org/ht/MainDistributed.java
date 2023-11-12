@@ -1,12 +1,12 @@
-package org.example;
+package org.ht;
 
-import org.example.ht.HTMap;
-import org.example.ht.distributed.HTRest;
+import org.ht.distributed.HashtableNodeREST;
+import org.ht.hashtable.HashtableMap;
 
 public class MainDistributed {
     public static void main(String[] args) {
-        HTRest<String, String> htNode1 = new HTRest<>(7070, new HTMap<>(), "A");
-        HTRest<String, String> htNode2 = new HTRest<>(7071, new HTMap<>(), "B");
+        HashtableNodeREST htNode1 = new HashtableNodeREST(7070, new HashtableMap<>(), "A");
+        HashtableNodeREST htNode2 = new HashtableNodeREST(7071, new HashtableMap<>(), "B");
 
         htNode2.getCacheSystem().put("TestKey", "TestValue");
 

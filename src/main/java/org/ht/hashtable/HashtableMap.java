@@ -1,17 +1,17 @@
-package org.example.ht;
+package org.ht.hashtable;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-public class HTMap<TKey, TValue> implements HT<TKey, TValue> {
+public class HashtableMap<TKey, TValue> implements Hashtable<TKey, TValue> {
     private Map<TKey, TValue> mapRepresentation;
 
-    public HTMap() {
+    public HashtableMap() {
         this.mapRepresentation = new HashMap<>();
     }
 
-    public HTMap(Map<TKey, TValue> mapInstance) {
+    public HashtableMap(Map<TKey, TValue> mapInstance) {
         this.mapRepresentation = mapInstance;
     }
 

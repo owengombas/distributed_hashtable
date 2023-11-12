@@ -1,15 +1,15 @@
-package org.example.ht.distributed;
+package org.ht.distributed;
 
-import org.example.ht.HT;
+import org.ht.hashtable.Hashtable;
 
 import java.util.Optional;
 import java.util.Vector;
 
-public interface HTNetwork<TKey, TValue> {
+public interface HashtableNode<TKey, TValue> {
     String getId();
     String getAddress();
     Vector<String> getKnownHosts();
-    HT<TKey, TValue> getCacheSystem();
+    Hashtable<TKey, TValue> getCacheSystem();
     String join(String nodeToJoinAddress);
     Optional<TValue> ask(String address, TKey key);
     Optional<TValue> askAll(TKey key);

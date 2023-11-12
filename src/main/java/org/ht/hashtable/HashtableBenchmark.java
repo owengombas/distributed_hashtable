@@ -1,21 +1,21 @@
-package org.example.ht;
+package org.ht.hashtable;
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.IntStream;
 
-public class HTBench {
+public class HashtableBenchmark {
     private static final String ALPHABET = "abcdefghijklmnopqrstuvwxyz";
 
-    private HT<String, Integer> simpleKVInstance;
+    private Hashtable<String, Integer> simpleKVInstance;
     private Set<String> keySet = new HashSet<>();
 
-    public HT<String, Integer> getSimpleKVInstance() {
+    public Hashtable<String, Integer> getSimpleKVInstance() {
         return this.simpleKVInstance;
     }
 
-    public HTBench(HT<String, Integer> simpleKVInstance) {
+    public HashtableBenchmark(Hashtable<String, Integer> simpleKVInstance) {
         this.simpleKVInstance = simpleKVInstance;
     }
 
@@ -31,7 +31,7 @@ public class HTBench {
     }
 
     public String getRandomString(int length) {
-        return this.getRandomString(length, HTBench.ALPHABET);
+        return this.getRandomString(length, HashtableBenchmark.ALPHABET);
     }
 
     public void putRandomEntry(int minStringLength, int maxStringLength, int minNumber, int maxNumber) {
