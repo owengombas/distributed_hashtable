@@ -14,7 +14,7 @@ import java.util.Vector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class HashtableNodeREST implements HashtableNode<String, String> {
+public class HashtableNodeRest implements HashtableNode<String, String> {
     private final Hashtable<String, String> cacheSystem;
     private final HttpClient client;
     private final Javalin server;
@@ -22,17 +22,17 @@ public class HashtableNodeREST implements HashtableNode<String, String> {
     private final Vector<String> knownHosts = new Vector<>();
     private final String id;
 
-    public HashtableNodeREST(int port, Hashtable<String, String> cacheSystem, String id) {
+    public HashtableNodeRest(int port, Hashtable<String, String> cacheSystem, String id) {
         this.id = id;
         this.cacheSystem = cacheSystem;
         this.client = HttpClient.newHttpClient();
         this.server = Javalin.create().start("127.0.0.1", port);
         this.log = LoggerFactory.getLogger(String.format("%s@%s", this.getId() , this.getAddress()));
 
-        this.initAPI();
+        this.initializeRestApi();
     }
 
-    private void initAPI() {
+    private void initializeRestApi() {
         this.server.post("/join", this::onJoin);
         this.server.post("/get", this::onGet);
         this.server.post("/put", this::onPut);
