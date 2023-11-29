@@ -26,17 +26,17 @@ public class GaussianDistribution extends ProbabilisticDistribution implements L
         this.variance = variance;
     }
 
+    public GaussianDistribution(Double[] data, String name) {
+        super(name);
+        this.mean = Arrays.stream(data).mapToDouble(Double::doubleValue).average().orElse(0);
+        this.variance = Arrays.stream(data).mapToDouble(Double::doubleValue).map(d -> Math.pow(d - mean, 2)).average().orElse(0);
+    }
+
     @Override
     public double getProbability(Double x) {
         double a = 1 / Math.sqrt(2 * Math.PI * variance);
         double b = Math.exp(-Math.pow(x - mean, 2) / (2 * variance));
         return a * b;
-    }
-
-    @Override
-    public void fromData(Double[] data) {
-        this.mean = Arrays.stream(data).mapToDouble(Double::doubleValue).average().orElse(0);
-        this.variance = Arrays.stream(data).mapToDouble(Double::doubleValue).map(d -> Math.pow(d - mean, 2)).average().orElse(0);
     }
 
     @Override

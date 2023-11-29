@@ -24,8 +24,6 @@ public abstract class ProbabilisticDistribution {
 
     abstract double getProbability(Double x);
 
-    public abstract void fromData(Double[] data);
-
     public ProbabilisticDistribution() {
     }
 

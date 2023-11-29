@@ -17,11 +17,6 @@ public class DiscreteDistribution extends ProbabilisticDistribution {
     }
 
     @Override
-    public void fromData(Double[] data) {
-        this.data = data;
-    }
-
-    @Override
     public double getRandomSample() {
         return data[(int) (Math.random() * data.length)];
     }
