@@ -1,10 +1,14 @@
 package org.bayes;
 
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
+import org.math.VectorXd;
+import org.plotting.LinePlottable;
+
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.stream.DoubleStream;
 
-public class GaussianDistribution extends ProbabilisticDistribution {
+public class GaussianDistribution extends ProbabilisticDistribution implements LinePlottable {
     private double mean;
     private double variance;
 
@@ -22,28 +26,17 @@ public class GaussianDistribution extends ProbabilisticDistribution {
         this.variance = variance;
     }
 
-    public double[] findIntersections(GaussianDistribution other) {
-        double a = 1 / (2 * variance) - 1 / (2 * other.variance);
-        double b = other.mean / other.variance - mean / variance;
-        double c = mean * mean / (2 * variance) - other.mean * other.mean / (2 * other.variance) - Math.log(Math.sqrt(variance / other.variance));
-        double[] roots = new double[2];
-        double discriminant = Math.sqrt(b * b - 4 * a * c);
-        roots[0] = (-b + discriminant) / (2 * a);
-        roots[1] = (-b - discriminant) / (2 * a);
-        return roots;
-    }
-
     @Override
-    public double getProbability(double x) {
+    public double getProbability(Double x) {
         double a = 1 / Math.sqrt(2 * Math.PI * variance);
         double b = Math.exp(-Math.pow(x - mean, 2) / (2 * variance));
         return a * b;
     }
 
     @Override
-    public void fromData(double[] data) {
-        this.mean = DoubleStream.of(data).average().orElse(0);
-        this.variance = DoubleStream.of(data).map(d -> Math.pow(d - mean, 2)).average().orElse(0);
+    public void fromData(Double[] data) {
+        this.mean = Arrays.stream(data).mapToDouble(Double::doubleValue).average().orElse(0);
+        this.variance = Arrays.stream(data).mapToDouble(Double::doubleValue).map(d -> Math.pow(d - mean, 2)).average().orElse(0);
     }
 
     @Override
@@ -59,6 +52,17 @@ public class GaussianDistribution extends ProbabilisticDistribution {
         return z0 * Math.sqrt(variance) + mean;
     }
 
+    public double[] findIntersections(GaussianDistribution other) {
+        double a = 1 / (2 * variance) - 1 / (2 * other.variance);
+        double b = other.mean / other.variance - mean / variance;
+        double c = mean * mean / (2 * variance) - other.mean * other.mean / (2 * other.variance) - Math.log(Math.sqrt(variance / other.variance));
+        double[] roots = new double[2];
+        double discriminant = Math.sqrt(b * b - 4 * a * c);
+        roots[0] = (-b + discriminant) / (2 * a);
+        roots[1] = (-b - discriminant) / (2 * a);
+        return roots;
+    }
+
     public static double[] findIntersections(GaussianDistribution... distributions) {
         ArrayList<double[]> intersections = new ArrayList<>();
         for (int i = 0; i < distributions.length; i++) {
@@ -67,5 +71,21 @@ public class GaussianDistribution extends ProbabilisticDistribution {
             }
         }
         return intersections.stream().flatMapToDouble(Arrays::stream).toArray();
+    }
+
+    public XYSeriesCollection getPlotCollection(double min, double max, int n, String title) {
+        Double[] xs = VectorXd.linspace(min, max, n).toArray(new Double[n]);
+
+        XYSeriesCollection dataset = new XYSeriesCollection();
+        XYSeries series = new XYSeries(this.toString());
+        for (Double x : xs) {
+            double p = this.getProbability(x);
+            series.add(x.doubleValue(), p);
+        }
+        dataset.addSeries(series);
+        // Set a label for the series
+        series.setKey(String.format("%s", title));
+
+        return dataset;
     }
 }

@@ -35,6 +35,12 @@
             <artifactId>junit-jupiter-api</artifactId>
             <version>5.8.1</version>
         </dependency>
+        <!-- JavaFX -->
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
+            <version>21.0.1</version>
+        </dependency>
     </dependencies>
 
 </project>

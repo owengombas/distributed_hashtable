@@ -1,8 +1,9 @@
 package org.bayes;
 
+import javafx.util.Pair;
 import org.jfree.chart.JFreeChart;
+import org.jfree.data.statistics.HistogramDataset;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.junit.jupiter.api.Assertions;
 import org.plotting.Plotting;
 
 import java.util.AbstractMap;
@@ -25,11 +26,14 @@ public class UseBayes {
 
         // Generate the dataset
         int total = 10000;
-        AbstractMap.SimpleEntry[] dataset = ProbabilisticDistribution.createRandomDataset(
+        Pair<Double[], Integer[]> datasets[] = ProbabilisticDistribution.createRandomDataset(
                 distributions,
-                classes,
                 new int[]{(int) (priorStudent * total), (int) (priorProfessor * total)}
         );
+        DiscreteDistribution[] datasetDistribution = {
+                new DiscreteDistribution(datasets[0].getKey()),
+                new DiscreteDistribution(datasets[1].getKey())
+        };
 
         // Create a bayes classifier with the dataset and the priors
         BayesClassifier bayesClassifierWithoutPriors = new BayesClassifier(distributions, classes);
@@ -39,21 +43,40 @@ public class UseBayes {
         double min = 0.0;
         double max = 80.0;
         int n = 1000;
-        JFreeChart bayesClassifierWithoutPriorsPlot = bayesClassifierWithoutPriors.plot(min, max, n, "Bayes Classifier without priors", "x", "p(class|x)p(x)");
-        JFreeChart bayesClassifierWithPriorsPlot = bayesClassifierWithPriors.plot(min, max, n, "Bayes Classifier with priors", "x", "p(class|x)p(x)");
-        XYSeriesCollection studentDistributionsPlotDataset = studentDistribution.plot(min, max, n, "Student distribution");
-        XYSeriesCollection professorDistributionsPlotDataset = professorDistribution.plot(min, max, n, "Professor distribution");
+        HistogramDataset datasetProfessorStudentPlot = DiscreteDistribution.getHistogramDataset(new DiscreteDistribution[]{datasetDistribution[0], datasetDistribution[1]}, 100, classes);
+        XYSeriesCollection bayesClassifierWithoutPriorsPlot = bayesClassifierWithoutPriors.getPlotCollection(min, max, n, "Bayes Classifier without priors");
+        XYSeriesCollection bayesClassifierWithPriorsPlot = bayesClassifierWithPriors.getPlotCollection(min, max, n, "Bayes Classifier with priors");
+        XYSeriesCollection studentDistributionsPlotDataset = studentDistribution.getPlotCollection(min, max, n, "Student distribution");
+        XYSeriesCollection professorDistributionsPlotDataset = professorDistribution.getPlotCollection(min, max, n, "Professor distribution");
+        JFreeChart bayesClassifierPlotWithoutPriors = Plotting.createXYLineChart(
+                "Bayes Classifier without priors",
+                "x",
+                "p(class|x)p(x)",
+                bayesClassifierWithoutPriorsPlot
+        );
+        JFreeChart bayesClassifierPlotWithPriors = Plotting.createXYLineChart(
+                "Bayes Classifier with priors",
+                "x",
+                "p(class|x)p(x)",
+                bayesClassifierWithPriorsPlot
+        );
         JFreeChart studentProfessorDistributionsPlot = Plotting.createXYLineChart(
                 "Student and professor distributions",
                 "x",
                 "p(x)",
                 professorDistributionsPlotDataset, studentDistributionsPlotDataset
         );
-        Plotting.displayPlots(studentProfessorDistributionsPlot, bayesClassifierWithoutPriorsPlot, bayesClassifierWithPriorsPlot);
+        JFreeChart datasetPlotChart = Plotting.createXYBarChart(
+                "Dataset",
+                "x",
+                "p(x)",
+                datasetProfessorStudentPlot
+        );
+        Plotting.displayPlots(datasetPlotChart, studentProfessorDistributionsPlot, bayesClassifierPlotWithoutPriors, bayesClassifierPlotWithPriors);
 
         // Compute the accuracy of the classifier
-        double accuracyWithoutPriors = bayesClassifierWithoutPriors.accuracy(dataset);
-        double accuracyWithPriors = bayesClassifierWithPriors.accuracy(dataset);
+        double accuracyWithoutPriors = bayesClassifierWithoutPriors.accuracy(datasets[2]);
+        double accuracyWithPriors = bayesClassifierWithPriors.accuracy(datasets[2]);
         System.out.printf("Accuracy without priors: %.2f%%\n", accuracyWithoutPriors * 100);
         System.out.printf("Accuracy with priors: %.2f%%\n", accuracyWithPriors * 100);
 

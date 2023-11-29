@@ -1,11 +1,13 @@
 package org.bayes;
 
+import javafx.util.Pair;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.junit.jupiter.api.Assertions;
 import org.math.VectorXd;
+import org.plotting.Plotting;
 
 import java.util.AbstractMap;
 import java.util.stream.IntStream;
@@ -81,21 +83,26 @@ public class BayesClassifier {
         return maxIndex;
     }
 
-    public double accuracy(AbstractMap.SimpleEntry<Double, String> dataset[]) {
+    public double accuracy(Pair<Double[], Integer[]> dataset) {
+        Assertions.assertEquals(dataset.getKey().length, dataset.getValue().length, "The number of data points and labels must be the same");
+
+        int total = dataset.getKey().length;
         int correct = 0;
 
-        for (AbstractMap.SimpleEntry<Double, String> data : dataset) {
-            double[] probabilities = this.predictProbabilities(data.getKey());
+        for (int i = 0; i < total; i++) {
+            Double x = dataset.getKey()[i];
+            Integer label = dataset.getValue()[i];
+            double[] probabilities = this.predictProbabilities(x);
             int prediction = this.predict(probabilities);
-            if (likelihoods[prediction].getName().equals(data.getValue())) {
+            if (prediction == label) {
                 correct++;
             }
         }
 
-        return correct / (double) dataset.length;
+        return correct / (double) total;
     }
 
-    public JFreeChart plot(double min, double max, int n, String title, String xLabel, String yLabel) {
+    public XYSeriesCollection getPlotCollection(double min, double max, int n, String title) {
         Double[] xs = VectorXd.linspace(min, max, n).toArray(new Double[n]);
 
         XYSeriesCollection dataset = new XYSeriesCollection();
@@ -111,12 +118,6 @@ public class BayesClassifier {
             series.setKey(String.format("%s %d (prior = %.2f)", title, i, priors[i]));
         }
 
-
-        return ChartFactory.createXYLineChart(
-                String.format("%s", title),
-                xLabel,
-                yLabel,
-                dataset
-        );
+        return dataset;
     }
 }
