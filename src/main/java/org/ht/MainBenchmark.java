@@ -8,6 +8,7 @@ public class MainBenchmark {
     public static void main(String[] args) {
         HashtableMap<String, Integer> simpleKV = new HashtableMap<>();
         HashtableBenchmark simpleKVBenc = new HashtableBenchmark(simpleKV);
+        Integer a[];
 
         int nSamples = 10000000;
         long putParallelTimeMilliseconds = simpleKVBenc.populateRandomlyParallel(
