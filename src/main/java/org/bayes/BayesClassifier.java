@@ -1,23 +1,60 @@
 package org.bayes;
 
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.JFreeChart;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
 import org.junit.jupiter.api.Assertions;
+import org.math.VectorXd;
 
 import java.util.AbstractMap;
 import java.util.stream.IntStream;
 
 public class BayesClassifier {
-    public BayesClassifier() {
+    ProbabilisticDistribution[] likelihoods;
+    double[] priors;
+    String[] classes;
+
+    public double[] getPriors() {
+        return priors;
+    }
+
+    public String[] getClasses() {
+        return classes;
+    }
+
+    public ProbabilisticDistribution[] getLikelihoods() {
+        return likelihoods;
+    }
+
+    public BayesClassifier(ProbabilisticDistribution[] likelihoods, double[] priors, String[] classes) {
+        Assertions.assertEquals(likelihoods.length, classes.length, "The number of likelihoods and classes must be the same");
+        Assertions.assertEquals(
+                IntStream.range(0, priors.length).mapToDouble(i -> priors[i]).sum(),
+                1.0,
+                "The sum of the priors must be 1.0"
+        );
+
+        this.likelihoods = likelihoods;
+        this.priors = priors;
+        this.classes = classes;
+    }
+
+    public BayesClassifier(ProbabilisticDistribution[] likelihoods, String[] classes) {
+        this(
+                likelihoods,
+                IntStream.range(0, likelihoods.length).mapToDouble(i -> 1.0 / likelihoods.length).toArray(),
+                classes
+        );
     }
 
     /**
      * Predict the probability of each class given the data x and the priors
      *
-     * @param likelihoods The likelihoods of each class (the length of this array is the number of classes)
-     * @param priors      The priors of each class (the length of this array is the number of classes)
-     * @param x           The data for which we want to predict the class
+     * @param x The data for which we want to predict the class
      * @return The probability of each class
      */
-    public double[] predictProbabilies(ProbabilisticDistribution[] likelihoods, double[] priors, double x) {
+    public double[] predictProbabilities(double x) {
         Assertions.assertEquals(likelihoods.length, priors.length, "The number of likelihoods and priors must be the same");
 
         double[] probabilities = new double[likelihoods.length];
@@ -26,19 +63,6 @@ public class BayesClassifier {
         }
 
         return probabilities;
-    }
-
-    /**
-     * Predict the probability of each class given the data x, we do not know the priors so we assume they are equal
-     * priors[] = {1/len(likelihoods), 1/len(likelihoods), ...}
-     *
-     * @param likelihoods The likelihoods of each class (the length of this array is the number of classes)
-     * @param x           The data for which we want to predict the class
-     * @return The probability of each class
-     */
-    public double[] predictProbabilies(ProbabilisticDistribution[] likelihoods, double x) {
-        double[] priors = IntStream.range(0, likelihoods.length).mapToDouble(i -> 1.0 / likelihoods.length).toArray();
-        return predictProbabilies(likelihoods, priors, x);
     }
 
     /**
@@ -57,17 +81,42 @@ public class BayesClassifier {
         return maxIndex;
     }
 
-    public double accuracy(ProbabilisticDistribution[] models, AbstractMap.SimpleEntry<Double, String> dataset[]) {
+    public double accuracy(AbstractMap.SimpleEntry<Double, String> dataset[]) {
         int correct = 0;
 
         for (AbstractMap.SimpleEntry<Double, String> data : dataset) {
-            double[] probabilities = predictProbabilies(models, data.getKey());
-            int prediction = predict(probabilities);
-            if (models[prediction].getName().equals(data.getValue())) {
+            double[] probabilities = this.predictProbabilities(data.getKey());
+            int prediction = this.predict(probabilities);
+            if (likelihoods[prediction].getName().equals(data.getValue())) {
                 correct++;
             }
         }
 
         return correct / (double) dataset.length;
+    }
+
+    public JFreeChart plot(double min, double max, int n, String title, String xLabel, String yLabel) {
+        Double[] xs = VectorXd.linspace(min, max, n).toArray(new Double[n]);
+
+        XYSeriesCollection dataset = new XYSeriesCollection();
+        for (int i = 0; i < likelihoods.length; i++) {
+            ProbabilisticDistribution distribution = likelihoods[i];
+            XYSeries series = new XYSeries(distribution.toString());
+            for (Double x : xs) {
+                double p = distribution.getProbability(x) * priors[i];
+                series.add(x.doubleValue(), p);
+            }
+            dataset.addSeries(series);
+            // Set a label for the series
+            series.setKey(String.format("%s %d (prior = %.2f)", title, i, priors[i]));
+        }
+
+
+        return ChartFactory.createXYLineChart(
+                String.format("%s", title),
+                xLabel,
+                yLabel,
+                dataset
+        );
     }
 }

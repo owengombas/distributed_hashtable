@@ -59,10 +59,6 @@ public class GaussianDistribution extends ProbabilisticDistribution {
         return z0 * Math.sqrt(variance) + mean;
     }
 
-    public GaussianDistribution scale(double factor) {
-        return new GaussianDistribution(mean, variance * factor * factor, this.getName());
-    }
-
     public static double[] findIntersections(GaussianDistribution... distributions) {
         ArrayList<double[]> intersections = new ArrayList<>();
         for (int i = 0; i < distributions.length; i++) {
