@@ -47,7 +47,8 @@ public class UseBayes {
         double min = 0.0;
         double max = 80.0;
         int n = 1000;
-        HistogramDataset datasetProfessorStudentPlot = DiscreteDistribution.getHistogramDataset(new DiscreteDistribution[]{datasetDistributions[0], datasetDistributions[1]}, 100, classes);
+        HistogramDataset datasetProfessorStudentPlot = DiscreteDistribution.getHistogramDataset(new DiscreteDistribution[]{datasetDistributions[0], datasetDistributions[1]}, 100, classes, false);
+        HistogramDataset datasetProfessorStudentNormalizedPlot = DiscreteDistribution.getHistogramDataset(new DiscreteDistribution[]{datasetDistributions[0], datasetDistributions[1]}, 100, classes, true);
         XYSeriesCollection bayesClassifierWithoutPriorsPlot = bayesClassifierWithoutPriors.getPlotCollection(min, max, n, "Bayes Classifier without priors");
         XYSeriesCollection bayesClassifierWithPriorsPlot = bayesClassifierWithPriors.getPlotCollection(min, max, n, "Bayes Classifier with priors");
         XYSeriesCollection studentDistributionsPlotDataset = studentDistribution.getPlotCollection(min, max, n, "Student distribution");
@@ -76,7 +77,13 @@ public class UseBayes {
                 "p(x)",
                 datasetProfessorStudentPlot
         );
-        Plotting.displayPlots(datasetPlotChart, studentProfessorDistributionsPlot, bayesClassifierPlotWithoutPriors, bayesClassifierPlotWithPriors);
+        JFreeChart datasetNormalizedPlotChart = Plotting.createXYBarChart(
+                "Dataset (normalized)",
+                "x",
+                "p(x)",
+                datasetProfessorStudentNormalizedPlot
+        );
+        Plotting.displayPlots(datasetPlotChart, datasetNormalizedPlotChart, studentProfessorDistributionsPlot, bayesClassifierPlotWithoutPriors, bayesClassifierPlotWithPriors);
 
         // Compute the accuracy of the classifier
         Pair<Double[], Integer[]> wholeDataset = datasets[2];
