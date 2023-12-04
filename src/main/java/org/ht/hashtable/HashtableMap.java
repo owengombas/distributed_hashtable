@@ -1,8 +1,8 @@
 package org.ht.hashtable;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import org.json.JSONObject;
+
+import java.util.*;
 
 public class HashtableMap<TKey, TValue> implements Hashtable<TKey, TValue> {
     private Map<TKey, TValue> mapRepresentation;
@@ -13,6 +13,16 @@ public class HashtableMap<TKey, TValue> implements Hashtable<TKey, TValue> {
 
     public HashtableMap(Map<TKey, TValue> mapInstance) {
         this.mapRepresentation = mapInstance;
+    }
+
+    @Override
+    public Set<TKey> keySet() {
+        return this.mapRepresentation.keySet();
+    }
+
+    @Override
+    public Collection<TValue> values() {
+        return this.mapRepresentation.values();
     }
 
     @Override
@@ -29,8 +39,28 @@ public class HashtableMap<TKey, TValue> implements Hashtable<TKey, TValue> {
     }
 
     @Override
+    public void remove(TKey K) {
+        this.mapRepresentation.remove(K);
+    }
+
+    @Override
+    public int size() {
+        return this.mapRepresentation.size();
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return this.mapRepresentation.isEmpty();
+    }
+
+    @Override
     public boolean exists(TKey K) {
         return this.mapRepresentation.containsKey(K);
+    }
+
+    @Override
+    public String toJSON() {
+        return new JSONObject(this.mapRepresentation).toString();
     }
 
     @Override

@@ -5,22 +5,28 @@ import org.ht.hashtable.HashtableMap;
 
 public class MainDistributed {
     public static void main(String[] args) {
-        HashtableNodeRest htNode1 = new HashtableNodeRest(7070, new HashtableMap<>(), "A");
-        HashtableNodeRest htNode2 = new HashtableNodeRest(7071, new HashtableMap<>(), "B");
+        HashtableNodeRest A = new HashtableNodeRest(7070, new HashtableMap<>(), "A");
+        HashtableNodeRest B = new HashtableNodeRest(7071, new HashtableMap<>(), "B");
+        HashtableNodeRest C = new HashtableNodeRest(7072, new HashtableMap<>(), "C");
 
-        htNode2.getCacheSystem().put("TestKey", "TestValue");
+        B.getCacheSystem().put("TestKey", "TestValue");
 
-        htNode2.join(htNode1.getAddress());
+        A.join(A.getAddress());
+        B.join(A.getAddress());
+        C.join(A.getAddress());
 
-        htNode1.get("TestKey");
-        htNode1.get("TestKeyDoNotExists");
+        A.get("TestKey");
+        A.get("TestKeyDoNotExists");
 
-        htNode1.put("a", "Test");
-        htNode1.put("b", "Test");
-        htNode1.put("c", "Test");
+        A.put("a", "Test");
+        B.put("b", "Test");
+        A.put("c", "Test");
 
-        htNode1.get("a");
-        htNode1.get("b");
-        htNode1.get("c");
+        A.get("a");
+        A.get("b");
+        A.get("c");
+
+        B.leave();
+        A.get("b");
     }
 }
