@@ -5,7 +5,10 @@ import org.json.JSONObject;
 import java.util.*;
 
 public class HashtableMap<TKey, TValue> implements Hashtable<TKey, TValue> {
+    private int cacheHits = 0;
+    private int cacheMisses = 0;
     private Map<TKey, TValue> mapRepresentation;
+    private Map<TKey, Integer> keyHits = new HashMap<>();
 
     public HashtableMap() {
         this.mapRepresentation = new HashMap<>();
@@ -33,8 +36,11 @@ public class HashtableMap<TKey, TValue> implements Hashtable<TKey, TValue> {
     @Override
     public Optional<TValue> get(TKey key) {
         if (this.exists(key)) {
+            this.cacheHits++;
+            this.keyHits.put(key, this.keyHits.getOrDefault(key, 0) + 1);
             return Optional.of(this.mapRepresentation.get(key));
         }
+        this.cacheMisses++;
         return Optional.empty();
     }
 
@@ -69,10 +75,10 @@ public class HashtableMap<TKey, TValue> implements Hashtable<TKey, TValue> {
         s.append("Map of ").append(this.mapRepresentation.size()).append(" elements:\n");
         s.append(
                 this.mapRepresentation
-                .entrySet()
-                .stream()
-                .map((e) -> String.format("%s = %s\n", e.getKey(), e.getValue()))
-                .collect(StringBuilder::new, StringBuilder::append, StringBuilder::append).toString()
+                        .entrySet()
+                        .stream()
+                        .map((e) -> String.format("%s = %s\n", e.getKey(), e.getValue()))
+                        .collect(StringBuilder::new, StringBuilder::append, StringBuilder::append).toString()
         );
         return s.toString();
     }
