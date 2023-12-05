@@ -95,6 +95,14 @@ public interface HashtableNode<TKey, TValue> {
     String put(TKey key, TValue value);
 
     /**
+     * Remove a key from the cache system of the distributed system
+     *
+     * @param key the key to remove
+     * @return the address of the node that removed the key
+     */
+    String remove(TKey key);
+
+    /**
      * Get the position of a key in the ring
      *
      * @param key the key to get the position

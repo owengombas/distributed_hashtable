@@ -104,6 +104,7 @@ public class HashtableNodeRest implements HashtableNode<String, String> {
         this.server.post("/update", this::onUpdate);
         this.server.post("/get", this::onGet);
         this.server.post("/put", this::onPut);
+        this.server.post("/remove", this::onRemove);
     }
 
     /**
@@ -282,6 +283,14 @@ public class HashtableNodeRest implements HashtableNode<String, String> {
         context.result(new JSONObject(Map.of("result", result == null ? JSONObject.NULL : result)).toString());
     }
 
+    private void onRemove(Context context) {
+        String key = new JSONObject(context.body()).getString("key");
+        this.getCacheSystem().remove(key);
+
+        this.log.info("{} successfully removed the key '{}'", this.getAddress(), key);
+        context.result(new JSONObject(Map.of("address", this.getAddress())).toString());
+    }
+
     @Override
     public String join(String nodeToJoinAddress) {
         return this.join(nodeToJoinAddress, -1);
@@ -357,7 +366,35 @@ public class HashtableNodeRest implements HashtableNode<String, String> {
                 return null;
             } else {
                 this.log.info("{} attends to store the key '{}' at node {} with position {}", this.getAddress(), key, addressOfKey, keyPosition);
-                return this.post(addressOfKey, "/put", JSONObject.wrap(Map.of(key, value)).toString());
+                String resultJSON = this.post(addressOfKey, "/put", JSONObject.wrap(Map.of(key, value)).toString());
+                JSONObject result = new JSONObject(resultJSON);
+                return result.getString("address");
+            }
+        }
+    }
+
+    @Override
+    public String remove(String key) {
+        int keyPosition = this.getKeyPosition(key);
+
+        this.log.info("{} got asked to remove {}", this.getAddress(), key);
+
+        if (this.getPosition() == keyPosition) {
+            // If the key is in the node, remove it directly in the node
+            this.getCacheSystem().remove(key);
+            this.log.info("the key '{}' got successfully removed directly at {}", key, this.getAddress());
+            return this.getAddress();
+        } else {
+            // If the key is not in the node, send it to the node that owns the key
+            String addressOfKey = this.getAddressOfPosition(keyPosition);
+            if (addressOfKey == null) {
+                this.log.info("The node that used to own the key '{}' (position {}) is not in the system anymore", key, keyPosition);
+                return null;
+            } else {
+                this.log.info("{} attends to remove the key '{}' at node {} with position {}", this.getAddress(), key, addressOfKey, keyPosition);
+                String resultJSON = this.post(addressOfKey, "/remove", JSONObject.wrap(Map.of("key", key)).toString());
+                JSONObject result = new JSONObject(resultJSON);
+                return result.getString("address");
             }
         }
     }
