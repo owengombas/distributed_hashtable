@@ -56,7 +56,7 @@ public class UseBayes {
         JFreeChart bayesClassifierPlotWithoutPriors = Plotting.createXYLineChart(
                 "Bayes Classifier without priors",
                 "x",
-                "p(class|x)p(x)",
+                "p(class|x)",
                 bayesClassifierWithoutPriorsPlot
         );
         JFreeChart bayesClassifierPlotWithPriors = Plotting.createXYLineChart(
