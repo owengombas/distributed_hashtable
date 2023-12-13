@@ -56,13 +56,13 @@ public class UseBayes {
         JFreeChart bayesClassifierPlotWithoutPriors = Plotting.createXYLineChart(
                 "Bayes Classifier without priors",
                 "x",
-                "p(class|x)",
+                "p(x|class)",
                 bayesClassifierWithoutPriorsPlot
         );
         JFreeChart bayesClassifierPlotWithPriors = Plotting.createXYLineChart(
                 "Bayes Classifier with priors",
                 "x",
-                "p(class|x)p(x)",
+                "p(x|class)p(x)",
                 bayesClassifierWithPriorsPlot
         );
         JFreeChart studentProfessorDistributionsPlot = Plotting.createXYLineChart(
